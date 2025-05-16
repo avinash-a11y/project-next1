@@ -19,75 +19,156 @@ Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, L
 
 const TransactionChart = ({ userId }) => {
   const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTimeframe, setActiveTimeframe] = useState('1M');
   const [chartType, setChartType] = useState('line');
 
   useEffect(() => {
     const fetchData = async () => {
-      const baseUrl = getApiBaseUrl();
-      const res = await fetch(`${baseUrl}/api/transactions?user=${userId}`);
-      const json = await res.json();
-      setTransactions(json.transactions || []);
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Use relative URL for better reliability
+        const response = await fetch(`/api/transactions?user=${userId}`);
+        
+        if (!response.ok) {
+          throw new Error(`Server returned ${response.status}: ${response.statusText}`);
+        }
+        
+        const json = await response.json();
+        
+        if (!json.transactions) {
+          console.warn('Transaction data format unexpected:', json);
+          setTransactions([]);
+        } else {
+          setTransactions(json.transactions || []);
+        }
+      } catch (err) {
+        console.error('Error fetching transaction data:', err);
+        setError(err.message);
+        setTransactions([]);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    fetchData();
+    if (userId) {
+      fetchData();
+    } else {
+      setError('No user ID provided');
+      setLoading(false);
+    }
   }, [userId]);
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500 mr-2"></div>
+        <span>Loading chart data...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full text-red-500">
+        <div className="bg-red-50 p-4 rounded-lg w-full text-center">
+          <p className="font-medium">Unable to load chart data</p>
+          <p className="text-sm text-red-400 mt-1">{error}</p>
+          <p className="text-xs mt-3">Try refreshing the page</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!transactions.length) {
-    return <div className="flex items-center justify-center h-full">Loading chart data...</div>;
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="p-4 text-center w-full">
+          <p className="text-gray-500">No transaction data available</p>
+          <p className="text-sm text-gray-400 mt-1">Make some transactions to see your activity here</p>
+        </div>
+      </div>
+    );
   }
 
   // Filter transactions based on the selected timeframe
   const getFilteredTransactions = () => {
-    const now = new Date();
-    let startDate = new Date();
-
-    switch (activeTimeframe) {
-      case '1W':
-        startDate.setDate(now.getDate() - 7);
-        break;
-      case '1M':
-        startDate.setMonth(now.getMonth() - 1);
-        break;
-      case '3M':
-        startDate.setMonth(now.getMonth() - 3);
-        break;
-      case '6M':
-        startDate.setMonth(now.getMonth() - 6);
-        break;
-      case '1Y':
-        startDate.setFullYear(now.getFullYear() - 1);
-        break;
-      case 'ALL':
-      default:
-        startDate = new Date(0); // Beginning of time
+    try {
+      const now = new Date();
+      let startDate = new Date();
+  
+      switch (activeTimeframe) {
+        case '1W':
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case '1M':
+          startDate.setMonth(now.getMonth() - 1);
+          break;
+        case '3M':
+          startDate.setMonth(now.getMonth() - 3);
+          break;
+        case '6M':
+          startDate.setMonth(now.getMonth() - 6);
+          break;
+        case '1Y':
+          startDate.setFullYear(now.getFullYear() - 1);
+          break;
+        case 'ALL':
+        default:
+          startDate = new Date(0); // Beginning of time
+      }
+  
+      return transactions.filter(tx => new Date(tx.createdAt) >= startDate);
+    } catch (err) {
+      console.error('Error filtering transactions:', err);
+      return [];
     }
-
-    return transactions.filter(tx => new Date(tx.createdAt) >= startDate);
   };
 
-  const filteredTx = getFilteredTransactions();
-  const sortedTx = [...filteredTx].sort(
-    (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-  );
+  let filteredTx = [];
+  let sortedTx = [];
+  let labels = [];
+  let values = [];
+  let deposits = 0;
+  let withdrawals = 0;
 
-  const labels = sortedTx.map(tx =>
-    new Date(tx.createdAt).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-    })
-  );
-
-  // Calculate portfolio value
-  let runningTotal = 0;
-  const values = sortedTx.map(tx => {
-    runningTotal += tx.amount;
-    return runningTotal;
-  });
-
-  // Calculate transaction volume
-  const deposits = sortedTx.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
-  const withdrawals = sortedTx.filter(tx => tx.amount < 0).reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  try {
+    filteredTx = getFilteredTransactions();
+    sortedTx = [...filteredTx].sort(
+      (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
+    );
+  
+    labels = sortedTx.map(tx =>
+      new Date(tx.createdAt).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      })
+    );
+  
+    // Calculate portfolio value
+    let runningTotal = 0;
+    values = sortedTx.map(tx => {
+      runningTotal += tx.amount;
+      return runningTotal;
+    });
+  
+    // Calculate transaction volume
+    deposits = sortedTx.filter(tx => tx.amount > 0).reduce((sum, tx) => sum + tx.amount, 0);
+    withdrawals = sortedTx.filter(tx => tx.amount < 0).reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  } catch (err) {
+    console.error('Error processing transaction data:', err);
+    return (
+      <div className="flex items-center justify-center h-full text-red-500">
+        <div className="bg-red-50 p-4 rounded-lg w-full text-center">
+          <p className="font-medium">Error processing transactions</p>
+          <p className="text-sm text-red-400 mt-1">{err.message}</p>
+        </div>
+      </div>
+    );
+  }
 
   // Chart data
   const lineData = {
@@ -133,11 +214,15 @@ const TransactionChart = ({ userId }) => {
       tooltip: {
         callbacks: {
           label: (context) => {
-            const tx = sortedTx[context.dataIndex];
-            if (chartType === 'bar') {
-              return `Amount: $${tx.amount} | Token: ${tx.token.substring(0, 10)}`;
+            try {
+              const tx = sortedTx[context.dataIndex];
+              if (chartType === 'bar') {
+                return `Amount: $${tx.amount} | Token: ${tx.token.substring(0, 10)}`;
+              }
+              return `Value: $${context.raw.toFixed(2)}`;
+            } catch (err) {
+              return 'Error displaying value';
             }
-            return `Value: $${context.raw.toFixed(2)}`;
           }
         }
       }
