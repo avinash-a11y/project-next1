@@ -217,9 +217,9 @@ const TransactionChart = ({ userId }) => {
             try {
               const tx = sortedTx[context.dataIndex];
               if (chartType === 'bar') {
-                return `Amount: $${tx.amount} | Token: ${tx.token.substring(0, 10)}`;
+                return `Amount: ₹${tx.amount} | Token: ${tx.token.substring(0, 10)}`;
               }
-              return `Value: $${context.raw.toFixed(2)}`;
+              return `Value: ₹${context.raw.toFixed(2)}`;
             } catch (err) {
               return 'Error displaying value';
             }
@@ -231,7 +231,7 @@ const TransactionChart = ({ userId }) => {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: (val) => `$${val}`,
+          callback: (val) => `₹${val}`,
         },
         grid: {
           color: '#eee',
@@ -293,11 +293,11 @@ const TransactionChart = ({ userId }) => {
       <div className="grid grid-cols-2 gap-4 mt-6">
         <div className="bg-green-50 p-4 rounded-lg">
           <p className="text-green-600 text-sm font-medium">Total Deposits</p>
-          <p className="text-2xl font-bold">${deposits.toFixed(2)}</p>
+          <p className="text-2xl font-bold">₹{deposits.toFixed(2)}</p>
         </div>
         <div className="bg-red-50 p-4 rounded-lg">
           <p className="text-red-600 text-sm font-medium">Total Withdrawals</p>
-          <p className="text-2xl font-bold">${withdrawals.toFixed(2)}</p>
+          <p className="text-2xl font-bold">₹{withdrawals.toFixed(2)}</p>
         </div>
       </div>
     </div>
