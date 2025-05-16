@@ -1,0 +1,30 @@
+{
+  "name": "next-1",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "axios": "^1.9.0",
+    "bcrypt": "^6.0.0",
+    "lucide-react": "^0.510.0",
+    "next": "15.3.2",
+    "next-auth": "^4.24.11",
+    "prisma": "^6.7.0",
+    "react": "^19.0.0",
+    "react-chartjs-2": "^5.3.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "22.15.18",
+    "@types/react": "19.1.4",
+    "tailwindcss": "^4",
+    "typescript": "5.8.3"
+  }
+}

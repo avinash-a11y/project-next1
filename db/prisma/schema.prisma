@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://neondb_owner:npg_UnPzHIiKR5A1@ep-red-lab-a4xgwjy3-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require"
+}
+
+model User {
+  id                Int                 @id @default(autoincrement())
+  email             String?             @unique
+  name              String?
+  number            String              @unique
+  password          String
+  balance           Balance[]
+  onRampTransaction onRampTransaction[]
+}
+
+model Balance {
+  id     Int  @id @default(autoincrement())
+  amount Int  @default(0)
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model onRampTransaction {
+  id        Int      @id @default(autoincrement())
+  amount    Int
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  status    status
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum status {
+  PENDING
+  COMPLETED
+  FAILED
+}
