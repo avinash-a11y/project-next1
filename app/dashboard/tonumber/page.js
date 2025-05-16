@@ -5,6 +5,8 @@ import { useSession } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
 import axios from 'axios';
 import Aside from '@/app/components/aside';
+import { getApiBaseUrl } from '@/app/utils/api';
+
 const TransferMoneyComponent = () => {
   const { data: session } = useSession();
   const [recipient, setRecipient] = useState('');
@@ -17,7 +19,8 @@ const TransferMoneyComponent = () => {
     setMessage('');
     setIsSending(true);
     try {
-      const res = await axios.post('http://localhost:3000/api/transferto', {
+      const baseUrl = getApiBaseUrl();
+      const res = await axios.post(`${baseUrl}/api/transferto`, {
         to: recipient,
         amount: Number(amount),
         user: Number(session?.user?.id),

@@ -63,7 +63,7 @@ export const authOptions = {
       },
     }),
   ],
-  secret: process.env.JWT_SECRET || "secret",
+  secret: process.env.NEXTAUTH_SECRET || "your-fallback-secret-key",
   callbacks: {
     async session({ session, token }) {
       if (session.user) {
@@ -72,7 +72,8 @@ export const authOptions = {
       return session;
     },
     async redirect() {
-      return "http://localhost:3000/dashboard";
+      // Use environment variable or fallback to a relative path that works in any environment
+      return `${process.env.NEXTAUTH_URL || ''}/dashboard`;
     },
   },
 };

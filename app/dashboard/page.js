@@ -3,6 +3,7 @@ import TransactionChart from '../components/transactionschart';
 import { getServerSession } from 'next-auth';
 import Aside from '@/app/components/aside';
 import { authOptions } from '../api/auth/[...nextauth]/route';
+import { getApiBaseUrl } from '../utils/api';
 
 const Page = async () => {
   const session = await getServerSession(authOptions);
@@ -10,9 +11,16 @@ const Page = async () => {
     console.log("redirecting to signin");
     redirect('/signin');
   }
-   
-  const txRes = await fetch("http://localhost:3000/api/transactions?user="+session.user.id);
+
+  // Use relative URLs or API utility for server components
+  const baseUrl = getApiBaseUrl();
+  
+  // Fetch transactions
+  const txRes = await fetch(`${baseUrl}/api/transactions?user=${session.user.id}`, {
+    cache: "no-store"
+  });
   const txData = await txRes.json();
+  
   const recentTransactions = txData.transactions || [];
   
   // Get greeting based on time of day
@@ -30,7 +38,7 @@ const Page = async () => {
       <main className="flex-1 p-8 overflow-y-auto w-[80%] ml-[20%] mt-20">
         <div className="max-w-6xl mx-auto">
           <header className="mb-8">
-            <h2 className="text-3xl font-bold text-[#4B3F72]">{getGreeting()}, {session.user.name} 👋</h2>
+            <h2 className="text-3xl font-bold text-[#4B3F72]">{getGreeting()}, {session.user.name || 'User'} 👋</h2>
             <p className="text-gray-500 mt-1">Welcome to your financial dashboard</p>
           </header>
 
@@ -39,7 +47,7 @@ const Page = async () => {
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold text-gray-800">Portfolio Overview</h3>
               </div>
-              <div className="w-full h-[400px]">
+              <div className="w-full h-[350px]">
                 <TransactionChart userId={session.user.id} />
               </div>
             </div>

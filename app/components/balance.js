@@ -2,6 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import React, { useState, useEffect } from 'react';
+import { getApiBaseUrl } from '../utils/api';
 
 const BalanceComponent = ({refresh}) => {
   const [balance, setBalance] = useState(0);
@@ -14,9 +15,10 @@ const BalanceComponent = ({refresh}) => {
         if(!session){
             return;
         }
-        const response = await fetch(`http://localhost:3000/api/addmoney?user=${session.user.id}`);
-      const data = await response.json();
-      setBalance(data.balance[0].amount);
+        const baseUrl = getApiBaseUrl();
+        const response = await fetch(`${baseUrl}/api/addmoney?user=${session.user.id}`);
+        const data = await response.json();
+        setBalance(data.balance[0].amount);
         console.log(data.balance[0].amount);
         setLoading(false);
     };

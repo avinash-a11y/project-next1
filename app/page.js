@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { getApiBaseUrl } from './utils/api';
 
 export default function Home() {
   const router = useRouter();
@@ -13,7 +14,8 @@ export default function Home() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch("http://localhost:3000/api/issigned");
+        const baseUrl = getApiBaseUrl();
+        const res = await fetch(`${baseUrl}/api/issigned`);
         const json = await res.json();
         setIsLoggedIn(json.issigned);
         setLoading(false);

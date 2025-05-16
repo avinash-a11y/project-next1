@@ -13,6 +13,7 @@ import {
   BarElement,
   Filler 
 } from 'chart.js';
+import { getApiBaseUrl } from '../utils/api';
 
 Chart.register(LineElement, PointElement, LinearScale, CategoryScale, Tooltip, Legend, BarElement, Filler);
 
@@ -23,7 +24,8 @@ const TransactionChart = ({ userId }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await fetch(`/api/transactions?user=${userId}`);
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/api/transactions?user=${userId}`);
       const json = await res.json();
       setTransactions(json.transactions || []);
     };
@@ -133,9 +135,9 @@ const TransactionChart = ({ userId }) => {
           label: (context) => {
             const tx = sortedTx[context.dataIndex];
             if (chartType === 'bar') {
-              return `Amount: ₹${tx.amount} | Token: ${tx.token.substring(0, 10)}`;
+              return `Amount: $${tx.amount} | Token: ${tx.token.substring(0, 10)}`;
             }
-            return `Value: ₹${context.raw.toFixed(2)}`;
+            return `Value: $${context.raw.toFixed(2)}`;
           }
         }
       }
@@ -144,7 +146,7 @@ const TransactionChart = ({ userId }) => {
       y: {
         beginAtZero: true,
         ticks: {
-          callback: (val) => `₹${val}`,
+          callback: (val) => `$${val}`,
         },
         grid: {
           color: '#eee',
@@ -195,7 +197,7 @@ const TransactionChart = ({ userId }) => {
         </div>
       </div>
 
-      <div className="h-[250px]">
+      <div className="h-[300px]">
         {chartType === 'line' ? (
           <Line data={lineData} options={options} />
         ) : (
@@ -206,11 +208,11 @@ const TransactionChart = ({ userId }) => {
       <div className="grid grid-cols-2 gap-4 mt-6">
         <div className="bg-green-50 p-4 rounded-lg">
           <p className="text-green-600 text-sm font-medium">Total Deposits</p>
-          <p className="text-2xl font-bold">₹{deposits.toFixed(2)}</p>
+          <p className="text-2xl font-bold">${deposits.toFixed(2)}</p>
         </div>
         <div className="bg-red-50 p-4 rounded-lg">
           <p className="text-red-600 text-sm font-medium">Total Withdrawals</p>
-          <p className="text-2xl font-bold">₹{withdrawals.toFixed(2)}</p>
+          <p className="text-2xl font-bold">${withdrawals.toFixed(2)}</p>
         </div>
       </div>
     </div>

@@ -2,28 +2,40 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { getApiBaseUrl } from '../utils/api';
 
 const AddMoneyComponent = ({refresh, setRefresh}) => {
     
   const [amount, setAmount] = useState('');
-    const { data: session } = useSession();
+  const { data: session } = useSession();
   const [bank, setBank] = useState('HDFC Bank');
   const [loading, setLoading] = useState(false);
+  
   const handleAddMoney = async () => {
     const random = Math.random().toString(36).substring(2, 15);
     setLoading(true);
-    const postMoney = await axios.post('http://localhost:3000/api/addmoney' , {
-        "amount" : Number(amount),
-        "user" : Number(session?.user?.id)  
-    })
-    const addtransaction = await axios.post('http://localhost:3000/api/transactions' , {
-        "amount" : Number(amount),
-        "user" : Number(session?.user?.id),   
-        "token" : random + "ONRAMP" + bank
-    })
-    setRefresh(!refresh);
-    console.log(postMoney);
-    setLoading(false);
+    
+    try {
+      const baseUrl = getApiBaseUrl();
+      
+      const postMoney = await axios.post(`${baseUrl}/api/addmoney`, {
+          "amount": Number(amount),
+          "user": Number(session?.user?.id)  
+      });
+      
+      const addtransaction = await axios.post(`${baseUrl}/api/transactions`, {
+          "amount": Number(amount),
+          "user": Number(session?.user?.id),   
+          "token": random + "ONRAMP" + bank
+      });
+      
+      setRefresh(!refresh);
+      console.log(postMoney);
+    } catch (error) {
+      console.error("Error adding money:", error);
+    } finally {
+      setLoading(false);
+    }
   };    
 
   return (
