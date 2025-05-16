@@ -47,9 +47,7 @@ const Page = async () => {
     let txData = { transactions: [] };
     try {
       console.log(`Fetching transactions for user ${session.user.id}`);
-      const txRes = await fetch(`/api/transactions?user=${session.user.id}`, {
-        cache: "no-store"
-      });
+      const txRes = await fetch(`/api/transactions?user=${session.user.id}`);
       
       if (!txRes.ok) {
         console.error(`Transaction fetch failed with status: ${txRes.status}`);
@@ -62,7 +60,7 @@ const Page = async () => {
       console.error('Transaction fetch error:', error);
     }
     
-    const recentTransactions = txData.transactions || [];
+    const recentTransactions = txData.transactions;
     
     // Get greeting based on time of day
     const getGreeting = () => {
@@ -98,7 +96,7 @@ const Page = async () => {
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h3>
                 
-                {recentTransactions.length > 0 ? (
+                {recentTransactions.length >= 0 ? (
                   <div className="space-y-4">
                     {recentTransactions.map((tx) => (
                       <div key={tx.id} className="flex items-center justify-between border-b pb-3">
