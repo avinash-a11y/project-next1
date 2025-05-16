@@ -60,8 +60,6 @@ const Page = async () => {
       console.log(`Fetched ${txData.transactions?.length || 0} transactions`);
     } catch (error) {
       console.error('Transaction fetch error:', error);
-      // Continue with empty transactions rather than failing
-      txData = { transactions: [] };
     }
     
     const recentTransactions = txData.transactions || [];
