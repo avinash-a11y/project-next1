@@ -44,23 +44,33 @@ const Page = async () => {
     const baseUrl = '';  // Empty string for relative URLs
     
     // Safely fetch transactions
-    let txData = { transactions: [] };
+    let recentTransactions = [];
     try {
       console.log(`Fetching transactions for user ${session.user.id}`);
-      const txRes = await fetch(`/api/transactions?user=${session.user.id}`);
+      const txRes = await fetch(`/api/transactions?user=${session.user.id}`, {
+        cache: "no-store"
+      });
       
       if (!txRes.ok) {
         console.error(`Transaction fetch failed with status: ${txRes.status}`);
         throw new Error(`Failed to fetch transactions: ${txRes.statusText}`);
       }
       
-      txData = await txRes.json();
-      console.log(`Fetched ${txData.transactions?.length || 0} transactions`);
+      const txData = await txRes.json();
+      console.log(`API Response:`, txData);
+      
+      // Ensure we're using the transactions array from the response
+      if (txData && txData.success && Array.isArray(txData.transactions)) {
+        recentTransactions = txData.transactions;
+        console.log(`Successfully processed ${recentTransactions.length} transactions`);
+      } else {
+        console.error('Unexpected transactions response format:', txData);
+      }
     } catch (error) {
       console.error('Transaction fetch error:', error);
+      // Continue with empty transactions rather than failing
+      recentTransactions = [];
     }
-    
-    const recentTransactions = txData.transactions;
     
     // Get greeting based on time of day
     const getGreeting = () => {
@@ -96,7 +106,7 @@ const Page = async () => {
               <div className="bg-white rounded-xl shadow-sm p-6">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h3>
                 
-                {recentTransactions.length >= 0 ? (
+                {recentTransactions.length > 0 ? (
                   <div className="space-y-4">
                     {recentTransactions.map((tx) => (
                       <div key={tx.id} className="flex items-center justify-between border-b pb-3">
@@ -111,7 +121,7 @@ const Page = async () => {
                           <div>
                             <p className="font-medium">{tx.amount > 0 ? 'Deposit' : 'Withdrawal'}</p>
                             <p className="text-xs text-gray-500">
-                              {new Date(tx.createdAt).toLocaleDateString()}
+                              {tx.createdAt ? new Date(tx.createdAt).toLocaleDateString() : 'Recent'}
                             </p>
                           </div>
                         </div>
