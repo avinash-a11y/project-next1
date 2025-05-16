@@ -6,6 +6,9 @@ import { authOptions } from '../api/auth/[...nextauth]/route';
 import { getApiBaseUrl } from '../utils/api';
 import { NextResponse } from 'next/server';
 
+// Tell Next.js this is a dynamic page that should not be statically generated
+export const dynamic = 'force-dynamic';
+
 // Helper function for error handling
 const errorWrapper = async (fn) => {
   try {
