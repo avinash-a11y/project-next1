@@ -1,0 +1,12 @@
+// This is a reference schema to help Vercel find the actual schema in db/prisma/
+// The actual schema is in db/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+} 

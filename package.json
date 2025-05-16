@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "prisma generate && next build",
+    "build": "npx prisma generate --schema=./db/prisma/schema.prisma && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "npx prisma generate --schema=./db/prisma/schema.prisma",
+    "vercel-build": "npx prisma generate --schema=./db/prisma/schema.prisma && next build"
   },
   "dependencies": {
     "@prisma/client": "^6.7.0",
