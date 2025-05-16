@@ -23,16 +23,5 @@
         }
       ]
     }
-  ],
-  "build": {
-    "env": {
-      "PRISMA_SCHEMA_ENGINE_BINARY": "/tmp/prisma-engines/schema-engine",
-      "PRISMA_QUERY_ENGINE_BINARY": "/tmp/prisma-engines/query-engine",
-      "PRISMA_MIGRATION_ENGINE_BINARY": "/tmp/prisma-engines/migration-engine",
-      "PRISMA_INTROSPECTION_ENGINE_BINARY": "/tmp/prisma-engines/introspection-engine",
-      "PRISMA_FMT_BINARY": "/tmp/prisma-engines/prisma-fmt",
-      "PRISMA_CLI_QUERY_ENGINE_TYPE": "binary",
-      "PRISMA_ENGINE_PROTOCOL": "binary"
-    }
-  }
+  ]
 } 

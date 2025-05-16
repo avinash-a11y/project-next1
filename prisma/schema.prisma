@@ -1,12 +1,45 @@
-// This is a reference schema to help Vercel find the actual schema in db/prisma/
-// The actual schema is in db/prisma/schema.prisma
+// This is a reference schema that mirrors the one in db/prisma
+// This helps Vercel find and use the Prisma schema during deployment
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int                 @id @default(autoincrement())
+  email             String?             @unique
+  name              String?
+  number            String              @unique
+  password          String
+  balance           Balance[]
+  onRampTransaction onRampTransaction[]
+}
+
+model Balance {
+  id     Int  @id @default(autoincrement())
+  amount Int  @default(0)
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model onRampTransaction {
+  id        Int      @id @default(autoincrement())
+  amount    Int
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  status    status
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum status {
+  PENDING
+  COMPLETED
+  FAILED
 } 
