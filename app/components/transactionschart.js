@@ -282,7 +282,7 @@ const TransactionChart = ({ userId }) => {
         </div>
       </div>
 
-      <div className="h-[300px]">
+      <div className="h-[250px]">
         {chartType === 'line' ? (
           <Line data={lineData} options={options} />
         ) : (
