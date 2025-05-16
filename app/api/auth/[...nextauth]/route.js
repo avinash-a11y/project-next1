@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcrypt";
-import prisma from "@/db";
+import prisma from "@/lib/prisma";
 
 // ✅ 1. Export authOptions
 export const authOptions = {
