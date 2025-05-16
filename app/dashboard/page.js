@@ -90,7 +90,7 @@ const Page = async () => {
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold text-gray-800">Portfolio Overview</h3>
                 </div>
-                <div className="w-full h-[500px]">
+                <div className="w-full h-[400px]">
                   <TransactionChart userId={session.user.id} />
                 </div>
               </div>
