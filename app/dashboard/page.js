@@ -47,7 +47,7 @@ const Page = async () => {
     let recentTransactions = [];
     try {
       console.log(`Fetching transactions for user ${session.user.id}`);
-      const txRes = await fetch(`/api/transactions?user=${session.user.id}`, {
+      const txRes = await fetch(`https://project-next1-1ect.vercel.app/api/transactions?user=${session.user.id}`, {
         cache: "no-store"
       });
       
