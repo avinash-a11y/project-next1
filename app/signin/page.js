@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import Head from 'next/head'
 import { signIn } from 'next-auth/react'
 import { Loader2 } from 'lucide-react'
+import { getApiBaseUrl } from '../utils/api'
 
 export default function SignIn() {
   const [ispageLoading, setIspageLoading] = useState(true)
@@ -16,7 +17,8 @@ export default function SignIn() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch("/api/issigned", {
+        const baseUrl = getApiBaseUrl();
+        const res = await fetch(`${baseUrl}/api/issigned`, {
           method: "GET",
           credentials: "include", // ✅ required for session
         })

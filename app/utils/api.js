@@ -5,10 +5,26 @@
  * 
  * This function returns the appropriate base URL depending on the environment.
  * In production, it uses the NEXT_PUBLIC_API_URL environment variable.
- * In development or if the environment variable is not set, it falls back to http://localhost:3000.
+ * In development or if the environment variable is not set, it falls back to a relative URL.
  */
 export const getApiBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+  // When running in the browser, we can check if we're in a production environment
+  const isProduction = process.env.NODE_ENV === 'production';
+  // Check if we're running on the client side
+  const isBrowser = typeof window !== 'undefined';
+  
+  // If NEXT_PUBLIC_API_URL is set, use it
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+  
+  // In a production browser environment without NEXT_PUBLIC_API_URL, use the current origin
+  if (isProduction && isBrowser) {
+    return window.location.origin;
+  }
+  
+  // In development or if nothing else works, use relative URLs which work in any environment
+  return '';
 };
 
 /**

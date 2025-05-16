@@ -20,24 +20,29 @@ export const authOptions = {
             where: { number: credentials.phone }
           });
         }catch(e){
-          console.log(e)
-        }
-        
-
-        if (existingUser) {
-          const isValid = await bcrypt.compare(credentials.password, existingUser.password);
-          if (isValid) {
-            return {
-              id: existingUser.id.toString(),
-              name: existingUser.name,
-              email: existingUser.number
-            };
-          }
+          console.error("Error finding user:", e);
           return null;
         }
+        
+        if (existingUser) {
+          try {
+            const isValid = await bcrypt.compare(credentials.password, existingUser.password);
+            if (isValid) {
+              return {
+                id: existingUser.id.toString(),
+                name: existingUser.name,
+                email: existingUser.number
+              };
+            }
+            return null;
+          } catch (error) {
+            console.error("Password comparison error:", error);
+            return null;
+          }
+        }
 
-        const hashedPassword = await bcrypt.hash(credentials.password, 10);
         try {
+          const hashedPassword = await bcrypt.hash(credentials.password, 10);
           const newUser = await prisma.user.create({
             data: {
               number: credentials.phone,
@@ -71,11 +76,15 @@ export const authOptions = {
       }
       return session;
     },
-    async redirect() {
-      // Use environment variable or fallback to a relative path that works in any environment
-      return `${process.env.NEXTAUTH_URL || ''}/dashboard`;
+    async redirect({ url, baseUrl }) {
+      // Use the configured base URL or the default URL
+      return `${process.env.NEXTAUTH_URL || baseUrl}/dashboard`;
     },
   },
+  pages: {
+    signIn: "/signin",
+    error: "/signin"
+  }
 };
 
 // ✅ 2. Create and export handler
